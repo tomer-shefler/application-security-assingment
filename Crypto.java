@@ -43,9 +43,6 @@ public class Conf {
 public class Crypto {
     static String usage = "crypto CONF INPUT_DATA";
 
-    private static void getProperties(path) {
-    }
-
     private static KeyPair getKeyPair(KeyStore keyStore, String alias, String password) {
         Key key = keyStore.getKey(alias, password.toCharArray());
         if ((key instanceof PrivateKey)) {
@@ -103,21 +100,21 @@ public class Crypto {
     }
 
     public static byte[] encrypt(KeyPair kp, String inputFile) {
-        byte[] plain_data = readFile(inputFile);
-        byte[] signature = sign(kp, plain_data);        
-        byte[] encrypted_data = encrypt_data(kp, plain_data);
-        writeFile(inputFile + ".cipher", encrypted_data);
+        byte[] plainData = readFile(inputFile);
+        byte[] encryptedData = encryptData(kp, plainData);
+        byte[] signature = sign(kp, encryptedData);        
+        writeFile(inputFile + ".cipher", encryptedData);
         return signature;
     }
 
     public static void decrypt(KeyPair kp, String inputFile, byte[] signature) {
-        byte[] crypt_data = readFile(inputFile);
-        if (!verify_signature(kp, crypt_data, signature)) {
+        byte[] cryptData = readFile(inputFile);
+        if (!verify_signature(kp, cryptData, signature)) {
             System.out.println("Unable to dectypt file: invalid signature");
             return
         }
-        byte[] decrypted_data = decrypt_data(kp, crypt_data);
-        writeFile(inputFile + ".plain", decrypted_data)
+        byte[] decryptedData = decryptData(kp, crypt_data);
+        writeFile(inputFile + ".plain", decryptedData)
     }
 
     public static void main(String[] args) {
