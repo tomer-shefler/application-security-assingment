@@ -1,0 +1,4 @@
+mode=encrypt
+password=Aa123456
+alias=tomer
+keystore=tomer.keystore
