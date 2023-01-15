@@ -1,44 +1,9 @@
+package crypto;
 import java.io.*;
 import java.security.*;
 import java.security.cert.*;
 import javax.crypto.*;
-import java.util.Properties;
-
-
-public class Conf {
-    boolean mode;
-    String password;
-    String alias;
-    String keyStorePath;
-    String signature;
-    Properties prop
-
-    public Conf() {
-
-    }
-
-    public void store(String path, String signature) {
-        OutputStream output = new FileOutputStream(path);
-        this.prop.setPropery("signature", signature);
-        this.prop.store(output);
-    }
-
-    public void load(String path) {
-        InputStream input = new FileInputStream(path);
-        this.prop = new Properties();
-        this.prop.load(input);
-        this.mode = this.prop.getProperty("mode") == "encrypt";
-        this.password = this.prop.getProperty("password");
-        this.alias = prop.getProperty("alias");
-        this.keyStorePath = this.prop.getProperty("keystore");
-
-        String signature = this.prop.getProperty("signature");
-        // Signature is optional, and required only on decrypt mode.
-        if (signature != null) {
-            this.signature = signature;
-        }
-    }
-}
+import java.util.Base64;
 
 public class Crypto {
     static String usage = "crypto CONF INPUT_DATA";
@@ -95,7 +60,7 @@ public class Crypto {
     }
 
     public static void writeFile(String path, byte[] data) {
-        OutputStream outputStream = new FileOutputStream(outputFile);
+        OutputStream outputStream = new FileOutputStream(path);
         outputStream.write(data);
     }
 
@@ -109,12 +74,12 @@ public class Crypto {
 
     public static void decrypt(KeyPair kp, String inputFile, byte[] signature) {
         byte[] cryptData = readFile(inputFile);
-        if (!verify_signature(kp, cryptData, signature)) {
+        if (!verifySignature(kp, cryptData, signature)) {
             System.out.println("Unable to dectypt file: invalid signature");
-            return
+            return;
         }
-        byte[] decryptedData = decryptData(kp, crypt_data);
-        writeFile(inputFile + ".plain", decryptedData)
+        byte[] decryptedData = decryptData(kp, cryptData);
+        writeFile(inputFile + ".plain", decryptedData);
     }
 
     public static void main(String[] args) {
@@ -130,10 +95,12 @@ public class Crypto {
         KeyPair keyPair = getKeyPair(ks, conf.alias, conf.password);
         
         if (conf.mode) {
-            String signature = encrypt(keyPair, inputPath);
-            conf.store(confPath + ".decryptor", signature);
+            byte[] signature = encrypt(keyPair, inputPath);
+            String base64Signatue = Base64.getEncoder().encodeToString(signature);
+            conf.store(confPath + ".decryptor", base64Signatue);
         } else {
-            decrypt(keyPair, inputPath, conf.signature);
+            byte[] signature = Base64.getDecoder().decode(conf.signature);
+            decrypt(keyPair, inputPath, signature);
         }
     }
     
