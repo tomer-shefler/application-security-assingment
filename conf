@@ -1,4 +1,4 @@
 mode=encrypt
-password=Aa123456
-alias=tomer
-keystore=tomer.keystore
+password=Aa1234
+alias=alice
+keystore=alice.keystore
