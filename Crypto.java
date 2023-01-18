@@ -104,6 +104,11 @@ public class Crypto {
         KeyStore ks = getKeyStore(conf.keyStorePath, conf.password);
         KeyPair keyPair = getKeyPair(ks, conf.alias, conf.password);
         
+        if (keyPair == null) {
+            System.out.println("Keypair is null");
+            return;
+        }
+
         if (conf.mode) {
             byte[] signature = encrypt(keyPair, inputPath);
             String base64Signatue = Base64.getEncoder().encodeToString(signature);

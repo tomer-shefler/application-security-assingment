@@ -24,7 +24,7 @@ public class Conf {
         InputStream input = new FileInputStream(path);
         this.prop = new Properties();
         this.prop.load(input);
-        this.mode = this.prop.getProperty("mode") == "encrypt";
+        this.mode = this.prop.getProperty("mode").equals("encrypt");
         this.password = this.prop.getProperty("password");
         this.alias = prop.getProperty("alias");
         this.keyStorePath = this.prop.getProperty("keystore");
