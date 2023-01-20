@@ -4,7 +4,7 @@ Create keysotre and keypair for Alice
 keytool -genkey -alias alice -keyalg RSA -keystore alice.keystore -storetype JKS -storepass Aa1234
 ```
 
-Create certificate for Alice
+Export certificate for Alice
 ```
 keytool -export -alias alice -keystore alice.keystore -rfc -file alice.cert -storepass Aa1234
 ```
@@ -14,7 +14,7 @@ Create keysotre and keypair for Bob
 keytool -genkey -alias bob -keyalg RSA -keystore bob.keystore -storetype JKS -storepass Aa1234
 ```
 
-Create certificate for Bob
+Export certificate for Bob
 ```
 keytool -export -alias bob -keystore bob.keystore -rfc -file bob.cert -storepass Aa1234
 ```

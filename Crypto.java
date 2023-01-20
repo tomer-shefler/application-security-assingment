@@ -7,9 +7,11 @@ import java.util.Base64;
 
 
 public class Crypto {
-    static String cipherInstance = "RSA";
-    static String signatureInstance = "SHA1withRSA";
-    static String usage = "crypto CONF INPUT_DATA";
+    static final String chipherSuffix = ".cipher";
+    static final String plainSuffix = ".plain";
+    static final String cipherInstance = "RSA";
+    static final String signatureInstance = "SHA1withRSA";
+    static final String usage = "crypto CONF INPUT_DATA";
  
     private static KeyPair getKeyPair(
         KeyStore keyStore, String password, String alias ,String peerAlias
@@ -81,7 +83,7 @@ public class Crypto {
         byte[] plainData = readFile(inputFile);
         byte[] encryptedData = encryptData(kp, plainData);
         byte[] signature = sign(kp, encryptedData);        
-        writeFile(inputFile + ".cipher", encryptedData);
+        writeFile(inputFile + chipherSuffix, encryptedData);
         return signature;
     }
 
@@ -93,12 +95,11 @@ public class Crypto {
         }
         byte[] decryptedData = decryptData(kp, cryptData);
 
-        // remove .chipher suffix if exists, and add .plain
         String outputFile;
-        if (inputFile.endsWith(".cipher")) {
-            outputFile = inputFile.substring(0, inputFile.length() - ".cipher".length()) + ".plain";
+        if (inputFile.endsWith(chipherSuffix)) {
+            outputFile = inputFile.substring(0, inputFile.length() - chipherSuffix.length()) + plainSuffix;
         } else {
-           outputFile = inputFile + ".plain"; 
+           outputFile = inputFile + plainSuffix; 
         }  
         writeFile(outputFile, decryptedData);
     }
