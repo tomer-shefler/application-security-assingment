@@ -3,3 +3,4 @@ crypto/
 *.cert
 conf.decryptor
 *.cipher
+*.plain

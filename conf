@@ -2,3 +2,4 @@ mode=encrypt
 password=Aa1234
 alias=alice
 keystore=alice.keystore
+peerAlias=bob
