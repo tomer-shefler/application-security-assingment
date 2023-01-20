@@ -17,6 +17,9 @@ public class Conf {
     public void store(String path, String signature) throws FileNotFoundException, IOException {
         OutputStream output = new FileOutputStream(path);
         this.prop.setProperty("signature", signature);
+        this.prop.setProperty("mode", "decrypt");
+        this.prop.setProperty("keystore", "bob.keystore");
+        this.prop.setProperty("alias", "bob");
         this.prop.store(output, null);
     }
 

@@ -7,15 +7,21 @@ import java.util.Base64;
 
 
 public class Crypto {
+    static String cipherInstance = "RSA/ECB/PKCS1Padding";
+    static String signatureInstance = "SHA1withRSA";
     static String usage = "crypto CONF INPUT_DATA";
 
     private static KeyPair getKeyPair(KeyStore keyStore, String alias, String password) throws Exception {
         Key key = keyStore.getKey(alias, password.toCharArray());
-        if ((key instanceof PrivateKey)) {
+        if (!(key instanceof PrivateKey)) {
             return null;
         }
 
-        X509Certificate cert = (X509Certificate)keyStore.getCertificate("ftpkey");
+        X509Certificate cert = (X509Certificate)keyStore.getCertificate(alias);
+        if (cert == null) {
+            System.out.println("certificate is null");
+            return null;
+        }
         return new KeyPair(cert.getPublicKey(), (PrivateKey)key);
     }
 
@@ -27,11 +33,11 @@ public class Crypto {
     }
 
     private static boolean verifySignature(KeyPair kp, byte[] data, byte[] signature) throws Exception {
-        Signature dsa = Signature.getInstance("SHA1withDSA");
+        Signature sign = Signature.getInstance(signatureInstance);
         try {
-            dsa.initVerify(kp.getPublic());
-            dsa.update(data);
-            return dsa.verify(signature); 
+            sign.initVerify(kp.getPublic());
+            sign.update(data);
+            return sign.verify(signature); 
         } catch (InvalidKeyException e) {
             System.out.println("Verify signature: invalid key");
             return false;
@@ -42,20 +48,20 @@ public class Crypto {
     }
 
     private static byte[] sign(KeyPair kp, byte[] data) throws Exception {
-        Signature dsa = Signature.getInstance("SHA1withDSA");
-        dsa.initSign(kp.getPrivate());
-        dsa.update(data);
-        return dsa.sign();
+        Signature sign = Signature.getInstance(signatureInstance);
+        sign.initSign(kp.getPrivate());
+        sign.update(data);
+        return sign.sign();
     }
 
     private static byte[] decryptData(KeyPair kp, byte[] data) throws Exception {
-        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
+        Cipher cipher = Cipher.getInstance(cipherInstance);
         cipher.init(Cipher.DECRYPT_MODE, kp.getPrivate());
         return cipher.doFinal(data);
     }
 
     private static byte[] encryptData(KeyPair kp, byte[] data) throws Exception {
-        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
+        Cipher cipher = Cipher.getInstance(cipherInstance);
         cipher.init(Cipher.ENCRYPT_MODE, kp.getPublic());
         return cipher.doFinal(data);
     }
@@ -79,11 +85,12 @@ public class Crypto {
         byte[] signature = sign(kp, encryptedData);        
         writeFile(inputFile + ".cipher", encryptedData);
         return signature;
+        //return plainData;
     }
 
     public static void decrypt(KeyPair kp, String inputFile, byte[] signature) throws Exception {
         byte[] cryptData = readFile(inputFile);
-        if (!verifySignature(kp, cryptData, signature)) {
+        if (verifySignature(kp, cryptData, signature)) {
             System.out.println("Unable to dectypt file: invalid signature");
             return;
         }
